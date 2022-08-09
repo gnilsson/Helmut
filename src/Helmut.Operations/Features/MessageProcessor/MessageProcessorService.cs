@@ -23,6 +23,13 @@ public sealed class MessageProcessorService : BackgroundService
         _taskQueue = taskQueue;
     }
 
+    public override Task StopAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Aborting service unit {Service}.", nameof(MessageProcessorService));
+
+        return base.StopAsync(cancellationToken);
+    }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var processorOptions = new ServiceBusProcessorOptions
@@ -84,7 +91,7 @@ public sealed class MessageProcessorService : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            var task = await _taskQueue.DequeueAsync(stoppingToken);
+            var task = await _taskQueue.DequeueTaskAsync(stoppingToken);
 
             try
             {
@@ -95,12 +102,5 @@ public sealed class MessageProcessorService : BackgroundService
                 _logger.LogError(e, "Error occurred executing {Task}.", nameof(task));
             }
         }
-    }
-
-    public override Task StopAsync(CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("Aborting service unit {Service}.", nameof(MessageProcessorService));
-
-        return base.StopAsync(cancellationToken);
     }
 }

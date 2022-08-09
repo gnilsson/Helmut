@@ -4,8 +4,17 @@ using Helmut.Radar.Features.Corresponder.Enums;
 using Helmut.Radar.Features.Corresponder.Models;
 using Helmut.Radar.Features.Corresponder.Queues;
 using System.Collections.Immutable;
+//using ILogger = Serilog.ILogger;
 
 namespace Helmut.Radar.Features.Corresponder;
+
+public abstract class BaseBackgroundService : BackgroundService
+{
+    public BaseBackgroundService()
+    {
+
+    }
+}
 
 public sealed class CorresponderService : BackgroundService
 {
@@ -34,13 +43,14 @@ public sealed class CorresponderService : BackgroundService
 
     public override async Task StopAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Corresponder Background Service is stopping.");
+        _logger.LogInformation("Corresponder Service is stopping.");
 
         await base.StopAsync(stoppingToken);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        _logger.LogInformation("hej.");
         await using var sender = _client.CreateSender(_configuration["AzureServiceBus:QueueName"]);
 
         var state = new CorresponderServiceState(0, CorresponderMode.Inactive, ImmutableArray<Vessel>.Empty, 0);
@@ -49,7 +59,7 @@ public sealed class CorresponderService : BackgroundService
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var task = await _taskQueue.DequeueAsync(stoppingToken);
+                var task = await _taskQueue.DequeueTaskAsync(stoppingToken);
 
                 try
                 {
@@ -66,13 +76,18 @@ public sealed class CorresponderService : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var update = await _stateTaskQueue.DequeueAsync(stoppingToken);
+            var update = await _stateTaskQueue.DequeueTaskAsync(stoppingToken);
 
             _stateCollection.Add(state.Id, state with { ExecutionCount = _executionCount });
 
             _executionCount = 0;
 
             state = update(state);
+
+            if (_stateCollection.Count > 100)
+            {
+                _stateCollection.Clear();
+            }
         }
     }
 }

@@ -1,0 +1,35 @@
+2022-08-10 00:24:10.988 +02:00 [DBG] Hosting starting
+2022-08-10 00:24:11.201 +02:00 [DBG] Creating a ServiceBusClient (Namespace: 'radar-messager.servicebus.windows.net', Entity name: ''
+2022-08-10 00:24:11.204 +02:00 [DBG] A ServiceBusClient has been created (Identifier 'radar-messager.servicebus.windows.net-58e257f4-99fd-4f8c-8850-ba5737d35fe2').
+2022-08-10 00:24:11.398 +02:00 [DBG] Using development certificate: CN=localhost (Thumbprint: 243C61D87F76612CC7B9855F15E6479D6404730C)
+2022-08-10 00:24:11.463 +02:00 [INF] Now listening on: https://localhost:7200
+2022-08-10 00:24:11.464 +02:00 [INF] Now listening on: http://localhost:5054
+2022-08-10 00:24:11.466 +02:00 [DBG] Loaded hosting startup assembly Helmut.Operations
+2022-08-10 00:24:11.467 +02:00 [DBG] Loaded hosting startup assembly Microsoft.AspNetCore.Watch.BrowserRefresh
+2022-08-10 00:24:11.468 +02:00 [DBG] Loaded hosting startup assembly Microsoft.WebTools.BrowserLink.Net
+2022-08-10 00:24:11.469 +02:00 [INF] OnStarted has been called.
+2022-08-10 00:24:11.471 +02:00 [INF] The current time is: "2022-08-09T22:24:11.4709841+00:00"
+2022-08-10 00:24:11.476 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2022-08-10 00:24:11.477 +02:00 [INF] Hosting environment: Development
+2022-08-10 00:24:11.478 +02:00 [INF] Content root path: C:\dev\helmut\src\Helmut.Operations\
+2022-08-10 00:24:11.479 +02:00 [DBG] Hosting started
+2022-08-10 00:24:11.904 +02:00 [DBG] Connection id "0HMJQANH9O5LA" received FIN.
+2022-08-10 00:24:11.904 +02:00 [DBG] Connection id "0HMJQANH9O5L9" received FIN.
+2022-08-10 00:24:11.908 +02:00 [DBG] Connection id "0HMJQANH9O5LA" accepted.
+2022-08-10 00:24:11.908 +02:00 [DBG] Connection id "0HMJQANH9O5L9" accepted.
+2022-08-10 00:24:11.910 +02:00 [DBG] Connection id "0HMJQANH9O5LA" started.
+2022-08-10 00:24:11.910 +02:00 [DBG] Connection id "0HMJQANH9O5L9" started.
+2022-08-10 00:24:11.928 +02:00 [DBG] Failed to authenticate HTTPS connection.
+System.IO.IOException:  Received an unexpected EOF or 0 bytes from the transport stream.
+   at System.Net.Security.SslStream.ReceiveBlobAsync[TIOAdapter](TIOAdapter adapter)
+   at System.Net.Security.SslStream.ForceAuthenticationAsync[TIOAdapter](TIOAdapter adapter, Boolean receiveFirst, Byte[] reAuthenticationData, Boolean isApm)
+   at Microsoft.AspNetCore.Server.Kestrel.Https.Internal.HttpsConnectionMiddleware.OnConnectionAsync(ConnectionContext context)
+2022-08-10 00:24:11.928 +02:00 [DBG] Failed to authenticate HTTPS connection.
+System.IO.IOException:  Received an unexpected EOF or 0 bytes from the transport stream.
+   at System.Net.Security.SslStream.ReceiveBlobAsync[TIOAdapter](TIOAdapter adapter)
+   at System.Net.Security.SslStream.ForceAuthenticationAsync[TIOAdapter](TIOAdapter adapter, Boolean receiveFirst, Byte[] reAuthenticationData, Boolean isApm)
+   at Microsoft.AspNetCore.Server.Kestrel.Https.Internal.HttpsConnectionMiddleware.OnConnectionAsync(ConnectionContext context)
+2022-08-10 00:24:11.964 +02:00 [DBG] Connection id "0HMJQANH9O5LA" stopped.
+2022-08-10 00:24:11.964 +02:00 [DBG] Connection id "0HMJQANH9O5L9" stopped.
+2022-08-10 00:24:11.968 +02:00 [DBG] Connection id "0HMJQANH9O5L9" sending FIN because: "The Socket transport's send loop completed gracefully."
+2022-08-10 00:24:11.968 +02:00 [DBG] Connection id "0HMJQANH9O5LA" sending FIN because: "The Socket transport's send loop completed gracefully."

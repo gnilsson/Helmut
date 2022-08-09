@@ -7,7 +7,7 @@ namespace Helmut.Operations.Features.MessageProcessor;
 
 public class MessageProcessorTaskQueue : BackgroundTaskQueue<Func<ServiceBusProcessor, Func<CancellationToken, Task>, CancellationToken, ValueTask>>, IMessageProcessorTaskQueue
 {
-    public MessageProcessorTaskQueue(int capacity, BoundedChannelFullMode mode = BoundedChannelFullMode.Wait) : base(capacity, mode)
+    public MessageProcessorTaskQueue(int capacity = 100, BoundedChannelFullMode mode = BoundedChannelFullMode.Wait) : base(capacity, mode)
     {
     }
 }

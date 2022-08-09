@@ -3,7 +3,6 @@ using Helmut.General.Models;
 using Helmut.Radar.Features.Corresponder.Enums;
 using Helmut.Radar.Features.Corresponder.Models;
 using Helmut.Radar.Features.Corresponder.Queues;
-using Helmut.Radar.Features.VesselGeneratorService;
 using System.Collections.Immutable;
 using System.Text.Json;
 
@@ -24,7 +23,7 @@ public sealed class CorresponderEnqueueEndpoint : ICorresponderEnqueueEndpoint
     {
         for (int i = 0; i < request.Ammount; i++)
         {
-            await _taskQueue.QueueBackgroundWorkItemAsync(BuildWorkItem);
+            await _taskQueue.QueueTaskAsync(BuildWorkItem);
 
             _logger.LogInformation("Enqueued work item {First} of {Ammount}", i + 1, request.Ammount);
         }

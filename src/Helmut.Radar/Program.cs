@@ -1,3 +1,5 @@
+using Helmut.General;
+using Helmut.General.Infrastructure;
 using Helmut.Radar.Features.Corresponder;
 using Helmut.Radar.Features.Corresponder.Endpoints;
 using Helmut.Radar.Features.Corresponder.Models;
@@ -5,9 +7,12 @@ using Helmut.Radar.Features.Corresponder.Queues;
 using Helmut.Radar.Features.VesselGeneratorService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;
+using Serilog;
 using System.Threading.Channels;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.LogWithSerilog();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -18,22 +23,18 @@ builder.Services.AddAzureClients(azcfBuilder =>
 });
 
 builder.Services.AddSingleton<IVesselGeneratorService, VesselGeneratorService>();
+
 builder.Services.AddSingleton<CorresponderService>();
 builder.Services.AddHostedService(provider => provider.GetRequiredService<CorresponderService>());
+builder.Services.AddHostedService<ApplicationLifetimeHostedService>();
 
 builder.Services.AddScoped<ICorresponderEnqueueEndpoint, CorresponderEnqueueEndpoint>();
 builder.Services.AddScoped<ICorresponderUpdateStateEndpoint, CorresponderUpdateStateEndpoint>();
 
-builder.Services.AddSingleton<ICorresponderTaskQueue, CorresponderTaskQueue>();
+builder.Services.AddSingleton<ICorresponderTaskQueue>(new CorresponderTaskQueue());
 builder.Services.AddSingleton<ICorresponderStateTaskQueue>(new CorresponderStateTaskQueue(10, BoundedChannelFullMode.DropOldest));
 
 var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
 app.MapPost("/radar/enqueue", async (
     [FromBody] CorresponderEnqueueRequest request,
@@ -54,6 +55,12 @@ app.MapPost("/radar/state", async (
 
     return Results.Accepted();
 });
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseHttpsRedirection();
 

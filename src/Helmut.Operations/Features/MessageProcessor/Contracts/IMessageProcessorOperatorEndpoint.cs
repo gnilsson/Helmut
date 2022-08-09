@@ -1,6 +1,4 @@
-﻿using Helmut.Operations.Features.MessageProcessor;
-
-namespace Helmut.Operations.Features.MessageProcessor.Contracts;
+﻿namespace Helmut.Operations.Features.MessageProcessor.Contracts;
 
 public interface IMessageProcessorOperatorEndpoint
 {

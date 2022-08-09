@@ -16,11 +16,13 @@ public class MessageProcessorOperatorEndpoint : IMessageProcessorOperatorEndpoin
 
     public async ValueTask ExecuteAsync(MessageProcessorOperationRequest request, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Executing processor operation type {Type}", request.Type);
+
         var operationTask = request.Type switch
         {
-            OperationType.Start => _taskQueue.QueueBackgroundWorkItemAsync(StartAsync),
-            OperationType.StopProcessor => _taskQueue.QueueBackgroundWorkItemAsync(StopProcessorAsync),
-            OperationType.StopService => _taskQueue.QueueBackgroundWorkItemAsync(StopServiceAsync),
+            OperationType.Start => _taskQueue.QueueTaskAsync(StartAsync),
+            OperationType.StopProcessor => _taskQueue.QueueTaskAsync(StopProcessorAsync),
+            OperationType.StopService => _taskQueue.QueueTaskAsync(StopServiceAsync),
             _ => ValueTask.CompletedTask
         };
 

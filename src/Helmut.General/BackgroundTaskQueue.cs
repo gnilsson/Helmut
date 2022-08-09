@@ -21,17 +21,12 @@ public abstract class BackgroundTaskQueue<T> : IBackgroundTaskQueue<T>
         _queue = Channel.CreateBounded<T>(options);
     }
 
-    public async ValueTask QueueBackgroundWorkItemAsync(T workItem)
+    public async ValueTask QueueTaskAsync(T workItem)
     {
-        if (workItem is null)
-        {
-            throw new ArgumentNullException(nameof(workItem));
-        }
-
         await _queue.Writer.WriteAsync(workItem);
     }
 
-    public async ValueTask<T> DequeueAsync(CancellationToken cancellationToken)
+    public async ValueTask<T> DequeueTaskAsync(CancellationToken cancellationToken)
     {
         var workItem = await _queue.Reader.ReadAsync(cancellationToken);
 
