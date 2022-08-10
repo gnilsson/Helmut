@@ -7,10 +7,11 @@ using Helmut.Radar.Features.Corresponder.Queues;
 using Helmut.Radar.Features.VesselGeneratorService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;
-using Serilog;
 using System.Threading.Channels;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.UseUrls(builder.Configuration["Docker:Url"]);
 
 builder.LogWithSerilog();
 

@@ -67,18 +67,16 @@ public sealed class MessageProcessorService : BackgroundService
             if (vessel is null)
             {
                 await args.DeadLetterMessageAsync(args.Message, cancellationToken: args.CancellationToken);
-
                 return;
             }
 
-            _logger.LogInformation("got message with vessel.\nname: {Name}\ngroup: {Group}", vessel.Affinity?.Name, vessel.Affinity?.Group);
+            _logger.LogInformation("Received message with vessel.\nname: {Name}\ngroup: {Group}", vessel.Affinity?.Name, vessel.Affinity?.Group);
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            _logger.LogInformation("error from message message: {Message}, count: {Count}", Encoding.UTF8.GetString(args.Message.Body), _executionCount);
+            _logger.LogError(e, "Error when receiving message.\n{Message}", Encoding.UTF8.GetString(args.Message.Body));
 
             await args.DeadLetterMessageAsync(args.Message, cancellationToken: args.CancellationToken);
-
             return;
         }
 

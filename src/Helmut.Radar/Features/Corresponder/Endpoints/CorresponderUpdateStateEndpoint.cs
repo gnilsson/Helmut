@@ -4,7 +4,6 @@ using Helmut.Radar.Features.Corresponder.Queues;
 using Helmut.Radar.Features.VesselGeneratorService;
 using System.Collections.Immutable;
 using System.Data;
-//using ILogger = Serilog.ILogger;
 
 namespace Helmut.Radar.Features.Corresponder.Endpoints;
 
@@ -29,7 +28,7 @@ public sealed class CorresponderUpdateStateEndpoint : ICorresponderUpdateStateEn
 
         await _taskQueue.QueueTaskAsync(UpdateState);
 
-  //      _logger.Information("Enqueued state with mode {Mode}", request.Mode);
+        _logger.LogInformation("Enqueued state with mode {Mode}", request.Mode);
     }
 
     private CorresponderServiceState UpdateState(CorresponderServiceState currentState)

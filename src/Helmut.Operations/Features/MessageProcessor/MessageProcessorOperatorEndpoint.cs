@@ -34,22 +34,34 @@ public class MessageProcessorOperatorEndpoint : IMessageProcessorOperatorEndpoin
 
     private async ValueTask StartAsync(ServiceBusProcessor processor, Func<CancellationToken, Task> _, CancellationToken cancellationToken)
     {
-        if (processor.IsProcessing is false)
+        if (processor.IsProcessing) return;
+
+        try
         {
             await processor.StartProcessingAsync(cancellationToken);
-
-            _logger.LogInformation("Started message processing boot sequence.");
         }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to boot message processing unit. ");
+            return;
+        }
+
+        _logger.LogInformation("Booting message processing unit.");
     }
 
     private async ValueTask StopProcessorAsync(ServiceBusProcessor processor, Func<CancellationToken, Task> _, CancellationToken cancellationToken)
     {
-        if (processor.IsProcessing)
+        if (processor.IsProcessing is false) return;
+
+        try
         {
             await processor.StopProcessingAsync(cancellationToken);
-
-            _logger.LogInformation("Aborting processing unit.");
         }
+        catch (Exception e) when (e is OperationCanceledException or TaskCanceledException)
+        {
+        }
+
+        _logger.LogInformation("Aborting processing unit.");
     }
 
     private async ValueTask StopServiceAsync(ServiceBusProcessor processor, Func<CancellationToken, Task> stopServiceAsync, CancellationToken cancellationToken)

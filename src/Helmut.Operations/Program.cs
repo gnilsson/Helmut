@@ -4,8 +4,11 @@ using Helmut.Operations.Features.MessageProcessor;
 using Helmut.Operations.Features.MessageProcessor.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.UseUrls(builder.Configuration["Docker:Url"]);
 
 builder.LogWithSerilog();
 
@@ -29,11 +32,12 @@ var app = builder.Build();
 app.MapPost("/operations/processor", async (
     [FromBody] MessageProcessorOperationRequest request,
     [FromServices] IMessageProcessorOperatorEndpoint endpoint,
+    HttpResponse response,
     CancellationToken cancellationToken) =>
 {
     await endpoint.ExecuteAsync(request, cancellationToken);
 
-    return Results.Ok();
+    return Results.Ok(JsonSerializer.Serialize(request));
 });
 
 if (app.Environment.IsDevelopment())
