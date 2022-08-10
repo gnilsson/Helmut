@@ -341,4 +341,4 @@ ASALocalRun/
 healthchecksdb
 
 # Local logs
-.logs/
+logs/
