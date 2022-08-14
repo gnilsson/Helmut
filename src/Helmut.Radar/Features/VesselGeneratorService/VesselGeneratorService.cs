@@ -1,4 +1,6 @@
 ﻿using Helmut.General.Models;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Helmut.Radar.Features.VesselGeneratorService;
 
@@ -70,6 +72,11 @@ public class VesselGeneratorService : IVesselGeneratorService
         private static readonly string[] _firstNames;
         private static readonly string[] _lastNames;
 
+        internal const double NORTH_LATITUDE = 59.8000;
+        internal const double SOUTH_LATITUDE = 58.4000;
+        internal const double EAST_LONGITUDE = 21.8000;
+        internal const double WEST_LATITUDE = 19.4000;
+
         internal static string[] FirstNames
         {
             get => _firstNames;
@@ -86,6 +93,8 @@ public class VesselGeneratorService : IVesselGeneratorService
         }
     }
 
+    private static readonly Random _random = new Random();
+
     public IEnumerable<Vessel>? GenerateFreshVessels(int count)
     {
         if (count == 0) return null;
@@ -95,12 +104,9 @@ public class VesselGeneratorService : IVesselGeneratorService
 
     private static IEnumerable<Vessel> YieldVessel(int count)
     {
-        var firstRandom = new Random();
-        var lastRandom = new Random();
-
-        var names = YieldRandomName(count, firstRandom, lastRandom).ToArray();
-        var groups = YieldRandomGroup(count, firstRandom).ToArray();
-        var coordinates = YieldRandomCoordinates(count, firstRandom, lastRandom).ToArray();
+        var names = YieldRandomName(count).ToArray();
+        var groups = YieldRandomGroup(count).ToArray();
+        var coordinates = YieldRandomCoordinates(count).ToArray();
 
         for (int i = 0; i < count; i++)
         {
@@ -117,33 +123,33 @@ public class VesselGeneratorService : IVesselGeneratorService
         }
     }
 
-    private static IEnumerable<string> YieldRandomName(int count, Random firstRandom, Random lastRandom)
+    private static IEnumerable<string> YieldRandomName(int count)
     {
         for (int i = 0; i < count; i++)
         {
-            var firstIndex = firstRandom.Next(Data.FirstNames.Length - 1);
-            var lastIndex = lastRandom.Next(Data.LastNames.Length - 1);
+            var firstIndex = _random.Next(Data.FirstNames.Length - 1);
+            var lastIndex = _random.Next(Data.LastNames.Length - 1);
 
             yield return string.Join(" ", Data.FirstNames[firstIndex], Data.LastNames[lastIndex]);
         }
     }
 
-    private static IEnumerable<string> YieldRandomGroup(int count, Random random)
+    private static IEnumerable<string> YieldRandomGroup(int count)
     {
         for (int i = 0; i < count; i++)
         {
-            var index = random.Next(Data.Groups.Length - 1);
+            var index = _random.Next(Data.Groups.Length - 1);
 
             yield return Data.Groups[index];
         }
     }
 
-    private static IEnumerable<Coordinates> YieldRandomCoordinates(int count, Random firstRandom, Random lastRandom)
+    private static IEnumerable<Coordinates> YieldRandomCoordinates(int count)
     {
         for (int i = 0; i < count; i++)
         {
-            var latitute = firstRandom.Next(584000, 598000);
-            var longitude = lastRandom.Next(194000, 218000);
+            var latitute = _random.NextDouble() * (Data.NORTH_LATITUDE - Data.SOUTH_LATITUDE) + Data.SOUTH_LATITUDE;
+            var longitude = _random.NextDouble() * (Data.EAST_LONGITUDE - Data.WEST_LATITUDE) + Data.WEST_LATITUDE;
 
             yield return new Coordinates(latitute, longitude);
         }

@@ -23,18 +23,17 @@ public sealed class CorresponderEnqueueEndpoint : ICorresponderEnqueueEndpoint
     {
         for (int i = 0; i < request.Ammount; i++)
         {
-            await _taskQueue.QueueTaskAsync(BuildWorkItem);
+            await _taskQueue.QueueTaskAsync(CreateMessagesAsync);
 
             _logger.LogInformation("Enqueued work item {First} of {Ammount}", i + 1, request.Ammount);
         }
     }
 
-    private async ValueTask BuildWorkItem(ServiceBusSender sender, CorresponderServiceState state, CancellationToken cancellationToken)
+    private async ValueTask CreateMessagesAsync(ServiceBusSender sender, CorresponderServiceState state, CancellationToken cancellationToken)
     {
         if (state.Mode is CorresponderMode.Inactive || state.Vessels is null or { Length: 0 })
         {
             _logger.LogInformation("Corresponder status: Inactive.");
-
             return;
         }
 
@@ -43,7 +42,6 @@ public sealed class CorresponderEnqueueEndpoint : ICorresponderEnqueueEndpoint
         if (vessels.Length <= 0)
         {
             _logger.LogInformation("Radar is blind.");
-
             return;
         }
 
@@ -55,11 +53,14 @@ public sealed class CorresponderEnqueueEndpoint : ICorresponderEnqueueEndpoint
 
             messageBatch.TryAddMessage(new ServiceBusMessage(message));
 
-            _logger.LogInformation("Detected vessel with ID {ID}, delivering message.", vessel.Id);
+            _logger.LogInformation("Detected vessel!\nName: {Name}\nGroup: {Group}\nLatitude: {Latitude}\nLongitude: {Longitude}, delivering message.",
+                vessel.Affinity.Name,
+                vessel.Affinity.Group,
+                vessel.Coordinates.Latitude,
+                vessel.Coordinates.Longitude);
         }
 
         await sender.SendMessagesAsync(messageBatch, cancellationToken);
-
         return;
     }
 

@@ -1,5 +1,6 @@
 using Helmut.General;
 using Helmut.General.Infrastructure;
+using Helmut.Operations.Features.LocationTranscoder;
 using Helmut.Operations.Features.MessageProcessor;
 using Helmut.Operations.Features.MessageProcessor.Contracts;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,7 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls(builder.Configuration["Docker:Url"]);
+//builder.WebHost.UseUrls(builder.Configuration["Docker:Url"]);
 
 builder.LogWithSerilog();
 
@@ -26,6 +27,7 @@ builder.Services.AddHostedService<ApplicationLifetimeHostedService>();
 
 builder.Services.AddScoped<IMessageProcessorOperatorEndpoint, MessageProcessorOperatorEndpoint>();
 builder.Services.AddSingleton<IMessageProcessorTaskQueue>(new MessageProcessorTaskQueue());
+builder.Services.AddSingleton<ILocationTranscoderService, LocationTranscoderService>();
 
 var app = builder.Build();
 

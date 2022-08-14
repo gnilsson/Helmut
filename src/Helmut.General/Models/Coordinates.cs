@@ -1,5 +1,8 @@
-﻿namespace Helmut.General.Models;
+﻿using System.Text.Json.Serialization;
 
+namespace Helmut.General.Models;
+
+[JsonConverter(typeof(CoordinatesConverter))]
 public readonly struct Coordinates : IEquatable<Coordinates>
 {
     public static Coordinates Empty => new(0, 0);

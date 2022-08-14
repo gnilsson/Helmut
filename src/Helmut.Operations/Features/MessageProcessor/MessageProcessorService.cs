@@ -1,5 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Helmut.General.Models;
+using Helmut.Operations.Features.LocationTranscoder;
 using Helmut.Operations.Features.MessageProcessor.Contracts;
 using System.Text;
 using System.Text.Json;
@@ -12,15 +13,16 @@ public sealed class MessageProcessorService : BackgroundService
     private readonly ServiceBusClient _client;
     private readonly IConfiguration _configuration;
     private readonly IMessageProcessorTaskQueue _taskQueue;
-
+    private readonly ILocationTranscoderService _locationTranscoderService;
     private int _executionCount;
 
-    public MessageProcessorService(ILogger<MessageProcessorService> logger, ServiceBusClient client, IConfiguration configuration, IMessageProcessorTaskQueue taskQueue)
+    public MessageProcessorService(ILogger<MessageProcessorService> logger, ServiceBusClient client, IConfiguration configuration, IMessageProcessorTaskQueue taskQueue, ILocationTranscoderService locationTranscoderService)
     {
         _logger = logger;
         _client = client;
         _configuration = configuration;
         _taskQueue = taskQueue;
+        _locationTranscoderService = locationTranscoderService;
     }
 
     public override Task StopAsync(CancellationToken cancellationToken)
@@ -70,7 +72,9 @@ public sealed class MessageProcessorService : BackgroundService
                 return;
             }
 
-            _logger.LogInformation("Received message with vessel.\nname: {Name}\ngroup: {Group}", vessel.Affinity?.Name, vessel.Affinity?.Group);
+            var locationName = await _locationTranscoderService.TranscodeCoordinatesAsync(vessel.Coordinates);
+
+            _logger.LogInformation("Received message with vessel.\nName: {Name}\nGroup: {Group}\nLocationName: {LocationName}", vessel.Affinity.Name, vessel.Affinity?.Group, locationName);
         }
         catch (Exception e)
         {
@@ -82,7 +86,15 @@ public sealed class MessageProcessorService : BackgroundService
 
         Interlocked.Increment(ref _executionCount);
 
-        await args.CompleteMessageAsync(args.Message, args.CancellationToken);
+        try
+        {
+            await args.CompleteMessageAsync(args.Message, args.CancellationToken);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error when completing message.\n{Message}", Encoding.UTF8.GetString(args.Message.Body));
+            return;
+        }
     }
 
     private async Task RunProcessorAsync(ServiceBusProcessor processor, CancellationToken stoppingToken)

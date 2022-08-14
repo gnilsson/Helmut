@@ -11,7 +11,10 @@ using System.Threading.Channels;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls(builder.Configuration["Docker:Url"]);
+if (builder.Environment.IsProduction())
+{
+    builder.WebHost.UseUrls(builder.Configuration["Docker:Url"]);
+}
 
 builder.LogWithSerilog();
 

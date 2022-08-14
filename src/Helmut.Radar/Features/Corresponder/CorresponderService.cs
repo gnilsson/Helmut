@@ -4,17 +4,8 @@ using Helmut.Radar.Features.Corresponder.Enums;
 using Helmut.Radar.Features.Corresponder.Models;
 using Helmut.Radar.Features.Corresponder.Queues;
 using System.Collections.Immutable;
-//using ILogger = Serilog.ILogger;
 
 namespace Helmut.Radar.Features.Corresponder;
-
-public abstract class BaseBackgroundService : BackgroundService
-{
-    public BaseBackgroundService()
-    {
-
-    }
-}
 
 public sealed class CorresponderService : BackgroundService
 {
@@ -50,7 +41,6 @@ public sealed class CorresponderService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("hej.");
         await using var sender = _client.CreateSender(_configuration["AzureServiceBus:QueueName"]);
 
         var state = new CorresponderServiceState(0, CorresponderMode.Inactive, ImmutableArray<Vessel>.Empty, 0);
