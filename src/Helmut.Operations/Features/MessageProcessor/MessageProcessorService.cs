@@ -14,9 +14,15 @@ public sealed class MessageProcessorService : BackgroundService
     private readonly IConfiguration _configuration;
     private readonly IMessageProcessorTaskQueue _taskQueue;
     private readonly ILocationTranscoderService _locationTranscoderService;
+
     private int _executionCount;
 
-    public MessageProcessorService(ILogger<MessageProcessorService> logger, ServiceBusClient client, IConfiguration configuration, IMessageProcessorTaskQueue taskQueue, ILocationTranscoderService locationTranscoderService)
+    public MessageProcessorService(
+        ILogger<MessageProcessorService> logger,
+        ServiceBusClient client,
+        IConfiguration configuration,
+        IMessageProcessorTaskQueue taskQueue,
+        ILocationTranscoderService locationTranscoderService)
     {
         _logger = logger;
         _client = client;

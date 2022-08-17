@@ -9,8 +9,13 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//builder.WebHost.UseUrls(builder.Configuration["Docker:Url"]);
+//init
+//builder.Configuration.AddUserSecrets<Program>();
 
+if (builder.Environment.IsProduction())
+{
+    builder.WebHost.UseUrls(builder.Configuration["Docker:Url"]);
+}
 builder.LogWithSerilog();
 
 builder.Services.AddEndpointsApiExplorer();

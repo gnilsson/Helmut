@@ -49,15 +49,15 @@ public sealed class CorresponderService : BackgroundService
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var task = await _taskQueue.DequeueTaskAsync(stoppingToken);
+                var correspond = await _taskQueue.DequeueTaskAsync(stoppingToken);
 
                 try
                 {
-                    await task(sender, state, stoppingToken);
+                    await correspond(sender, state, stoppingToken);
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, "Error occurred executing {Task}.", nameof(task));
+                    _logger.LogError(e, "Error occurred executing {Task}.", nameof(correspond));
                 }
 
                 Interlocked.Increment(ref _executionCount);
