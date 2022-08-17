@@ -9,13 +9,13 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//init
-//builder.Configuration.AddUserSecrets<Program>();
+builder.Configuration.AddUserSecrets<Program>();
 
 if (builder.Environment.IsProduction())
 {
     builder.WebHost.UseUrls(builder.Configuration["Docker:Url"]);
 }
+
 builder.LogWithSerilog();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -23,7 +23,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddAzureClients(azcfBuilder =>
 {
-    azcfBuilder.AddServiceBusClient(builder.Configuration.GetConnectionString("ServiceBus"));
+    azcfBuilder.AddServiceBusClient(builder.Configuration["AzureServiceBus:ConnectionString"]);
 });
 
 builder.Services.AddSingleton<MessageProcessorService>();

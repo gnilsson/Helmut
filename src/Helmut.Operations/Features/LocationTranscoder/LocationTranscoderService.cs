@@ -10,7 +10,7 @@ internal sealed class LocationTranscoderService : ILocationTranscoderService
 
     public LocationTranscoderService(IConfiguration configuration)
     {
-        _wrapper = new What3WordsV3(configuration["W3wKey"]);
+        _wrapper = new What3WordsV3(configuration["What3WordsApiKey"]);
     }
 
     public async ValueTask<LocationNameRepresentation> TranscodeCoordinatesAsync(Coordinates coordinates)

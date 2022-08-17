@@ -11,6 +11,8 @@ using System.Threading.Channels;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddUserSecrets<Program>();
+
 if (builder.Environment.IsProduction())
 {
     builder.WebHost.UseUrls(builder.Configuration["Docker:Url"]);
@@ -23,7 +25,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddAzureClients(azcfBuilder =>
 {
-    azcfBuilder.AddServiceBusClient(builder.Configuration.GetConnectionString("ServiceBus"));
+    azcfBuilder.AddServiceBusClient(builder.Configuration["AzureServiceBus:ConnectionString"]);
 });
 
 builder.Services.AddSingleton<IVesselGeneratorService, VesselGeneratorService>();
