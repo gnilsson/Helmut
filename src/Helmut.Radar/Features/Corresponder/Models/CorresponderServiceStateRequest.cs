@@ -2,4 +2,4 @@
 
 namespace Helmut.Radar.Features.Corresponder.Models;
 
-public record CorresponderServiceStateRequest(CorresponderMode Mode, int VesselCount);
+public record CorresponderUpdateStateRequest(CorresponderMode Mode, int VesselCount);

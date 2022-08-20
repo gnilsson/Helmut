@@ -2,11 +2,13 @@ using Helmut.General;
 using Helmut.General.Infrastructure;
 using Helmut.Radar.Features.Corresponder;
 using Helmut.Radar.Features.Corresponder.Endpoints;
-using Helmut.Radar.Features.Corresponder.Models;
 using Helmut.Radar.Features.Corresponder.Queues;
+using Helmut.Radar.Features.Database;
+using Helmut.Radar.Features.Extensions;
 using Helmut.Radar.Features.VesselGeneratorService;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
+using Serilog;
 using System.Threading.Channels;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +30,11 @@ builder.Services.AddAzureClients(azcfBuilder =>
     azcfBuilder.AddServiceBusClient(builder.Configuration["AzureServiceBus:ConnectionString"]);
 });
 
+builder.Services.AddDbContext<RadarDbContext>(options => options
+    .UseSqlServer(builder.Configuration["DbContext:ConnectionString"])
+    .LogTo(Log.Logger.Information)
+    .EnableSensitiveDataLogging());
+
 builder.Services.AddSingleton<IVesselGeneratorService, VesselGeneratorService>();
 
 builder.Services.AddSingleton<CorresponderService>();
@@ -42,25 +49,11 @@ builder.Services.AddSingleton<ICorresponderStateTaskQueue>(new CorresponderState
 
 var app = builder.Build();
 
-app.MapPost("/radar/enqueue", async (
-    [FromBody] CorresponderEnqueueRequest request,
-    [FromServices] ICorresponderEnqueueEndpoint endpoint,
-    CancellationToken cancellationToken) =>
-{
-    await endpoint.ExecuteAsync(request, cancellationToken);
+var scope = app.Services.CreateScope();
+var context = scope.ServiceProvider.GetRequiredService<RadarDbContext>();
+await context.Database.MigrateAsync();
 
-    return Results.Accepted();
-});
-
-app.MapPost("/radar/state", async (
-    [FromBody] CorresponderServiceStateRequest request,
-    [FromServices] ICorresponderUpdateStateEndpoint endpoint,
-    CancellationToken cancellationToken) =>
-{
-    await endpoint.ExecuteAsync(request, cancellationToken);
-
-    return Results.Accepted();
-});
+app.MapEndpoints();
 
 if (app.Environment.IsDevelopment())
 {

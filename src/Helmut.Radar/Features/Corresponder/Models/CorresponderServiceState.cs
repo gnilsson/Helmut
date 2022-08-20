@@ -4,4 +4,4 @@ using System.Collections.Immutable;
 
 namespace Helmut.Radar.Features.Corresponder.Models;
 
-public record CorresponderServiceState(int Id, CorresponderMode Mode, ImmutableArray<Vessel>? Vessels, int ExecutionCount);
+public record CorresponderState(int Id, CorresponderMode Mode, ImmutableArray<Vessel>? Vessels, int ExecutionCount);

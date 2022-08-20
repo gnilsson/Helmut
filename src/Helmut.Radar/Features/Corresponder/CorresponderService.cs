@@ -3,7 +3,10 @@ using Helmut.General.Models;
 using Helmut.Radar.Features.Corresponder.Enums;
 using Helmut.Radar.Features.Corresponder.Models;
 using Helmut.Radar.Features.Corresponder.Queues;
+using Helmut.Radar.Features.Database;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 namespace Helmut.Radar.Features.Corresponder;
 
@@ -14,70 +17,117 @@ public sealed class CorresponderService : BackgroundService
     private readonly IConfiguration _configuration;
     private readonly ICorresponderTaskQueue _taskQueue;
     private readonly ICorresponderStateTaskQueue _stateTaskQueue;
-    private readonly Dictionary<int, CorresponderServiceState> _stateCollection = new();
-
-    private int _executionCount = 0;
+    private readonly IServiceScopeFactory _scopeFactory;
 
     public CorresponderService(
         ILogger<CorresponderService> logger,
         ServiceBusClient client,
         IConfiguration configuration,
         ICorresponderTaskQueue taskQueue,
-        ICorresponderStateTaskQueue stateTaskQueue)
+        ICorresponderStateTaskQueue stateTaskQueue,
+        IServiceScopeFactory scopeFactory)
     {
         _logger = logger;
         _client = client;
         _configuration = configuration;
         _taskQueue = taskQueue;
         _stateTaskQueue = stateTaskQueue;
+        _scopeFactory = scopeFactory;
     }
 
     public override async Task StopAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Corresponder Service is stopping.");
 
-        await base.StopAsync(stoppingToken);
+        await base.StopAsync(stoppingToken).ConfigureAwait(false);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await using var sender = _client.CreateSender(_configuration["AzureServiceBus:QueueName"]);
 
-        var state = new CorresponderServiceState(0, CorresponderMode.Inactive, ImmutableArray<Vessel>.Empty, 0);
+        var executionCount = 0;
+
+        var state = new CorresponderState(0, CorresponderMode.Inactive, ImmutableArray<Vessel>.Empty, executionCount);
 
         _ = Task.Run(async () =>
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var correspond = await _taskQueue.DequeueTaskAsync(stoppingToken);
+                var correspond = await _taskQueue.DequeueTaskAsync(stoppingToken).ConfigureAwait(false);
 
                 try
                 {
-                    await correspond(sender, state, stoppingToken);
+                    await correspond(sender, state, stoppingToken).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e, "Error occurred executing {Task}.", nameof(correspond));
                 }
 
-                Interlocked.Increment(ref _executionCount);
+                Interlocked.Increment(ref executionCount);
             }
         }, stoppingToken);
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var update = await _stateTaskQueue.DequeueTaskAsync(stoppingToken);
+            var update = await _stateTaskQueue.DequeueTaskAsync(stoppingToken).ConfigureAwait(false);
 
-            _stateCollection.Add(state.Id, state with { ExecutionCount = _executionCount });
+            await using var scope = _scopeFactory.CreateAsyncScope();
 
-            _executionCount = 0;
+            await using var dbContext = scope.ServiceProvider.GetRequiredService<RadarDbContext>();
+
+            var vessels = await YieldVessel(state.Vessels, dbContext.Vessels, stoppingToken)
+                .ToArrayAsync(stoppingToken)
+                .ConfigureAwait(false);
+
+            await dbContext.States.AddAsync(new CorresponderStateEntity
+            {
+                Id = Guid.NewGuid(),
+                ProcessId = state.Id,
+                Mode = state.Mode,
+                Vessels = vessels,
+                ExecutionCount = executionCount,
+            }, stoppingToken).ConfigureAwait(false);
+
+            await dbContext.SaveChangesAsync(stoppingToken).ConfigureAwait(false);
+
+            executionCount = 0;
 
             state = update(state);
+        }
+    }
 
-            if (_stateCollection.Count > 100)
+    private static async IAsyncEnumerable<VesselEntity> YieldVessel(
+        ImmutableArray<Vessel>? stateVessels,
+        DbSet<VesselEntity> dbSet,
+        [EnumeratorCancellation] CancellationToken stoppingToken)
+    {
+        if (!(stateVessels is not null and { Length: > 0 } vessels)) yield break;
+
+        var vesselIds = vessels
+            .Select(x => x.Id)
+            .ToArray();
+
+        var existingVessels = await dbSet
+            .AsNoTracking()
+            .Where(x => vesselIds.Contains(x.Id))
+            .Select(x => x.Id)
+            .ToArrayAsync(stoppingToken)
+            .ConfigureAwait(false);
+
+        foreach (var vessel in vessels)
+        {
+            if (existingVessels.Contains(vessel.Id)) continue;
+
+            yield return new VesselEntity
             {
-                _stateCollection.Clear();
-            }
+                Id = vessel.Id,
+                Name = vessel.Affinity.Name,
+                Group = vessel.Affinity.Group,
+                Latitude = vessel.Coordinates.Latitude,
+                Longitude = vessel.Coordinates.Longitude,
+            };
         }
     }
 }

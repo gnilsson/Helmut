@@ -13,7 +13,7 @@ public sealed class CorresponderUpdateStateEndpoint : ICorresponderUpdateStateEn
     private readonly ILogger<CorresponderUpdateStateEndpoint> _logger;
     private readonly IVesselGeneratorService _vesselGenerator;
 
-    private CorresponderServiceStateRequest _stateRequest = null!;
+    private CorresponderUpdateStateRequest _stateRequest = null!;
 
     public CorresponderUpdateStateEndpoint(ICorresponderStateTaskQueue taskQueue, ILogger<CorresponderUpdateStateEndpoint> logger, IVesselGeneratorService vesselGenerator)
     {
@@ -22,7 +22,7 @@ public sealed class CorresponderUpdateStateEndpoint : ICorresponderUpdateStateEn
         _vesselGenerator = vesselGenerator;
     }
 
-    public async Task ExecuteAsync(CorresponderServiceStateRequest request, CancellationToken cancellationToken)
+    public async Task ExecuteAsync(CorresponderUpdateStateRequest request, CancellationToken cancellationToken)
     {
         _stateRequest = request;
 
@@ -31,12 +31,12 @@ public sealed class CorresponderUpdateStateEndpoint : ICorresponderUpdateStateEn
         _logger.LogInformation("Enqueued state with mode {Mode}", request.Mode);
     }
 
-    private CorresponderServiceState UpdateState(CorresponderServiceState currentState)
+    private CorresponderState UpdateState(CorresponderState currentState)
     {
         return UpdateState(currentState, _stateRequest, _vesselGenerator);
     }
 
-    private static CorresponderServiceState UpdateState(CorresponderServiceState currentState, CorresponderServiceStateRequest request, IVesselGeneratorService vesselGenerator)
+    private static CorresponderState UpdateState(CorresponderState currentState, CorresponderUpdateStateRequest request, IVesselGeneratorService vesselGenerator)
     {
         var freshVessels = vesselGenerator.GenerateFreshVessels(request.VesselCount)?.ToImmutableArray();
 
@@ -44,7 +44,7 @@ public sealed class CorresponderUpdateStateEndpoint : ICorresponderUpdateStateEn
             ? freshVessels
             : AccumulateVessels(freshVessels, currentState.Vessels.Value);
 
-        return new CorresponderServiceState(currentState.Id + 1, request.Mode, allVessels, 0);
+        return new CorresponderState(currentState.Id + 1, request.Mode, allVessels, 0);
     }
 
     private static ImmutableArray<Vessel> AccumulateVessels(ImmutableArray<Vessel>? freshVessels, ImmutableArray<Vessel> vessels)

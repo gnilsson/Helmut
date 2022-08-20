@@ -29,7 +29,7 @@ public sealed class CorresponderEnqueueEndpoint : ICorresponderEnqueueEndpoint
         }
     }
 
-    private async ValueTask CreateMessagesAsync(ServiceBusSender sender, CorresponderServiceState state, CancellationToken cancellationToken)
+    private async ValueTask CreateMessagesAsync(ServiceBusSender sender, CorresponderState state, CancellationToken cancellationToken)
     {
         if (state.Mode is CorresponderMode.Inactive || state.Vessels is null or { Length: 0 })
         {

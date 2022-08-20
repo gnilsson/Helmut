@@ -4,5 +4,5 @@ namespace Helmut.Radar.Features.Corresponder.Endpoints;
 
 public interface ICorresponderUpdateStateEndpoint
 {
-    Task ExecuteAsync(CorresponderServiceStateRequest request, CancellationToken cancellationToken);
+    Task ExecuteAsync(CorresponderUpdateStateRequest request, CancellationToken cancellationToken);
 }
