@@ -22,10 +22,9 @@ namespace Helmut.Radar.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("Helmut.Radar.Features.Database.CorresponderStateEntity", b =>
+            modelBuilder.Entity("Helmut.Radar.Features.Database.Entities.CorresponderStateEntity", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("ExecutionCount")
@@ -42,13 +41,12 @@ namespace Helmut.Radar.Migrations
                     b.ToTable("States");
                 });
 
-            modelBuilder.Entity("Helmut.Radar.Features.Database.VesselEntity", b =>
+            modelBuilder.Entity("Helmut.Radar.Features.Database.Entities.VesselEntity", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CorresponderStateEntityId")
+                    b.Property<Guid>("CorresponderStateEntityId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Group")
@@ -70,14 +68,16 @@ namespace Helmut.Radar.Migrations
                     b.ToTable("Vessels");
                 });
 
-            modelBuilder.Entity("Helmut.Radar.Features.Database.VesselEntity", b =>
+            modelBuilder.Entity("Helmut.Radar.Features.Database.Entities.VesselEntity", b =>
                 {
-                    b.HasOne("Helmut.Radar.Features.Database.CorresponderStateEntity", null)
+                    b.HasOne("Helmut.Radar.Features.Database.Entities.CorresponderStateEntity", null)
                         .WithMany("Vessels")
-                        .HasForeignKey("CorresponderStateEntityId");
+                        .HasForeignKey("CorresponderStateEntityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("Helmut.Radar.Features.Database.CorresponderStateEntity", b =>
+            modelBuilder.Entity("Helmut.Radar.Features.Database.Entities.CorresponderStateEntity", b =>
                 {
                     b.Navigation("Vessels");
                 });

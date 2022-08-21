@@ -1,9 +1,11 @@
 ﻿using Azure.Messaging.ServiceBus;
+using Boolkit;
 using Helmut.General.Models;
 using Helmut.Radar.Features.Corresponder.Enums;
 using Helmut.Radar.Features.Corresponder.Models;
 using Helmut.Radar.Features.Corresponder.Queues;
 using Helmut.Radar.Features.Database;
+using Helmut.Radar.Features.Database.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
@@ -73,28 +75,37 @@ public sealed class CorresponderService : BackgroundService
         {
             var update = await _stateTaskQueue.DequeueTaskAsync(stoppingToken).ConfigureAwait(false);
 
-            await using var scope = _scopeFactory.CreateAsyncScope();
-
-            await using var dbContext = scope.ServiceProvider.GetRequiredService<RadarDbContext>();
-
-            var vessels = await YieldVessel(state.Vessels, dbContext.Vessels, stoppingToken)
-                .ToArrayAsync(stoppingToken)
-                .ConfigureAwait(false);
-
-            await dbContext.States.AddAsync(new CorresponderStateEntity
-            {
-                Id = Guid.NewGuid(),
-                ProcessId = state.Id,
-                Mode = state.Mode,
-                Vessels = vessels,
-                ExecutionCount = executionCount,
-            }, stoppingToken).ConfigureAwait(false);
-
-            await dbContext.SaveChangesAsync(stoppingToken).ConfigureAwait(false);
-
+            var previousState = state;
+            state = update(state);
+            var previousCount = executionCount;
             executionCount = 0;
 
-            state = update(state);
+            try
+            {
+                await using var scope = _scopeFactory.CreateAsyncScope();
+
+                await using var dbContext = scope.ServiceProvider.GetRequiredService<RadarDbContext>();
+
+                var vessels = await YieldVessel(previousState.Vessels, dbContext.Vessels, stoppingToken)
+                    .ToArrayAsync(stoppingToken)
+                    .ConfigureAwait(false);
+
+                var stateEntity = new CorresponderStateEntity
+                {
+                    ProcessId = previousState.Id,
+                    Mode = previousState.Mode,
+                    Vessels = vessels,
+                    ExecutionCount = previousCount,
+                };
+
+                await dbContext.States.AddAsync(stateEntity, stoppingToken).ConfigureAwait(false);
+
+                await dbContext.SaveChangesAsync(stoppingToken).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error occured updating database.");
+            }
         }
     }
 

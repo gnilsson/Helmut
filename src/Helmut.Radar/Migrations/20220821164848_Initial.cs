@@ -32,7 +32,7 @@ namespace Helmut.Radar.Migrations
                     Group = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Latitude = table.Column<double>(type: "float", nullable: false),
                     Longitude = table.Column<double>(type: "float", nullable: false),
-                    CorresponderStateEntityId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    CorresponderStateEntityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -41,7 +41,8 @@ namespace Helmut.Radar.Migrations
                         name: "FK_Vessels_States_CorresponderStateEntityId",
                         column: x => x.CorresponderStateEntityId,
                         principalTable: "States",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
