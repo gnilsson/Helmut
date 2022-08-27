@@ -1,5 +1,4 @@
 ﻿using Azure.Messaging.ServiceBus;
-using Boolkit;
 using Helmut.General.Models;
 using Helmut.Radar.Features.Corresponder.Enums;
 using Helmut.Radar.Features.Corresponder.Models;
@@ -80,13 +79,23 @@ public sealed class CorresponderService : BackgroundService
             var previousCount = executionCount;
             executionCount = 0;
 
+            await AddStateEntityAsync(previousState, previousCount, stoppingToken).ConfigureAwait(false);
+        }
+    }
+
+    private async Task AddStateEntityAsync(CorresponderState previousState, int previousCount, CancellationToken stoppingToken)
+    {
+        try
+        { }
+        finally
+        {
             try
             {
                 await using var scope = _scopeFactory.CreateAsyncScope();
 
                 await using var dbContext = scope.ServiceProvider.GetRequiredService<RadarDbContext>();
 
-                var vessels = await YieldVessel(previousState.Vessels, dbContext.Vessels, stoppingToken)
+                var vessels = await YieldVesselAsync(previousState.Vessels, dbContext.Vessels, stoppingToken)
                     .ToArrayAsync(stoppingToken)
                     .ConfigureAwait(false);
 
@@ -109,7 +118,7 @@ public sealed class CorresponderService : BackgroundService
         }
     }
 
-    private static async IAsyncEnumerable<VesselEntity> YieldVessel(
+    private static async IAsyncEnumerable<VesselEntity> YieldVesselAsync(
         ImmutableArray<Vessel>? stateVessels,
         DbSet<VesselEntity> dbSet,
         [EnumeratorCancellation] CancellationToken stoppingToken)

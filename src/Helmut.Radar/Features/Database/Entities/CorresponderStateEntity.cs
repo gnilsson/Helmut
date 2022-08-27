@@ -1,5 +1,4 @@
-﻿using Boolkit;
-using Helmut.Radar.Features.Corresponder.Enums;
+﻿using Helmut.Radar.Features.Corresponder.Enums;
 using MassTransit;
 
 namespace Helmut.Radar.Features.Database.Entities;

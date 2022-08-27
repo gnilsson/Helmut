@@ -1,6 +1,5 @@
-﻿using Boolkit;
-using Helmut.Radar.Features.Corresponder.Enums;
-using Helmut.Radar.Features.Database.Entities;
+﻿using Helmut.Radar.Features.Database.Entities;
+using Helmut.Radar.Features.IdConstructs;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;

@@ -1,4 +1,4 @@
-﻿using Boolkit;
+﻿using Helmut.Radar.Features.IdConstructs;
 
 namespace Helmut.Radar.Features.Database.Entities;
 
@@ -9,5 +9,4 @@ public class VesselEntity
     public string? Group { get; init; }
     public double Latitude { get; init; }
     public double Longitude { get; init; }
-    //public SequentialIdentifier CorresponderStateEntityId { get; init; }
 }

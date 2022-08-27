@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
-namespace Boolkit;
+namespace Helmut.Radar.Features.IdConstructs;
 
 public readonly struct Identifier :
         IIdentifier,

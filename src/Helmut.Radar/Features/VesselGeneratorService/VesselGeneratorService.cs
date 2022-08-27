@@ -1,6 +1,4 @@
 ﻿using Helmut.General.Models;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Helmut.Radar.Features.VesselGeneratorService;
 
@@ -93,7 +91,7 @@ public class VesselGeneratorService : IVesselGeneratorService
         }
     }
 
-    private static readonly Random _random = new Random();
+    private static readonly Random _random = new();
 
     public IEnumerable<Vessel>? GenerateFreshVessels(int count)
     {
