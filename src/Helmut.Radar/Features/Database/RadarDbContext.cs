@@ -28,24 +28,6 @@ public class RadarDbContext : DbContext
         { }
     }
 
-    class SequentialIdentifierValueGenerator : ValueGenerator<SequentialIdentifier2>
-    {
-        public override bool GeneratesTemporaryValues { get; }
-
-        public override SequentialIdentifier2 Next(EntityEntry entry)
-        {
-            return SequentialIdentifier2.New();
-        }
-    }
-
-    class SequentialIdentifierValueConverter : ValueConverter<SequentialIdentifier2, Guid>
-    {
-        public SequentialIdentifierValueConverter() : base(
-            s => s,
-            g => new SequentialIdentifier2(g))
-        { }
-    }
-
     class IdentifierValueGenerator : ValueGenerator<Identifier>
     {
         public override bool GeneratesTemporaryValues { get; }
@@ -55,6 +37,7 @@ public class RadarDbContext : DbContext
             return Identifier.New();
         }
     }
+
     class IdentifierValueConverter : ValueConverter<Identifier, Guid>
     {
         public IdentifierValueConverter() : base(
@@ -67,12 +50,6 @@ public class RadarDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        //var corresponderStateEntity = modelBuilder.Entity<CorresponderStateEntity>();
-        //corresponderStateEntity
-        //    .Property(p => p.Id)
-        //    .HasConversion<SequentialIdentifierValueConverter>()
-        //    .HasValueGenerator<SequentialIdentifierValueGenerator>();
-
         var corresponderStateEntity = modelBuilder.Entity<CorresponderStateEntity>();
         corresponderStateEntity
             .Property(p => p.Id)
@@ -83,11 +60,6 @@ public class RadarDbContext : DbContext
         vesselEntity
             .Property(p => p.Id)
             .HasConversion<IdentifierValueConverter>();
-
-        //vesselEntity
-        //    .Property(p => p.CorresponderStateEntityId)
-        //    .HasConversion<SequentialIdentifierValueConverter>()
-        //    .IsRequired();
 
         corresponderStateEntity
             .HasMany(b => b.Vessels)

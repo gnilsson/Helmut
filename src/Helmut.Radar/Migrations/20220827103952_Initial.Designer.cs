@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Helmut.Radar.Migrations
 {
     [DbContext(typeof(RadarDbContext))]
-    [Migration("20220821164848_Initial")]
+    [Migration("20220827103952_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

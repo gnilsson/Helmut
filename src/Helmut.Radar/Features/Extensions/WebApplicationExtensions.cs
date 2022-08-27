@@ -2,6 +2,7 @@
 using Helmut.Radar.Features.Corresponder.Models;
 using Helmut.Radar.Features.Database;
 using Helmut.Radar.Features.Database.Entities;
+using Helmut.Radar.Features.IdConstructs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -43,12 +44,12 @@ internal static class WebApplicationExtensions
             {
                 await foreach (var state in dbContext.States
                     .AsNoTracking()
-                    .OrderByDescending(x => x.Id)
                     .Include(x => x.Vessels)
                     .AsAsyncEnumerable()
+                    .OrderByDescending(x => x.Id)
                     .ConfigureAwait(false))
                 {
-                    yield return new Response { Id = state.Id.ToString(), ProcessId = state.ProcessId, Mode = (int)state.Mode, };
+                    yield return new Response { Id = state.Id.ToStringBase64(), ProcessId = state.ProcessId, Mode = (int)state.Mode, };
                 }
             }
         }

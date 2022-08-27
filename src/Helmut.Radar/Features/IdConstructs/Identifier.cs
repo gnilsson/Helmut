@@ -6,7 +6,8 @@ using System.Text.RegularExpressions;
 namespace Helmut.Radar.Features.IdConstructs;
 
 public readonly struct Identifier :
-        IIdentifier,
+        IEquatable<Identifier>,
+        IEquatable<Guid>,
         IFormattable
 {
     public static readonly Identifier Empty = new(Guid.Empty);
