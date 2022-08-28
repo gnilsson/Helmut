@@ -6,6 +6,9 @@ using Helmut.Operations.Features.MessageProcessor.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;
 using System.Text.Json;
+using StackExchange.Redis;
+using Microsoft.Extensions.Configuration;
+using Helmut.Operations.Features.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,7 +37,23 @@ builder.Services.AddScoped<IMessageProcessorOperatorEndpoint, MessageProcessorOp
 builder.Services.AddSingleton<IMessageProcessorTaskQueue>(new MessageProcessorTaskQueue());
 builder.Services.AddSingleton<ILocationTranscoderService, LocationTranscoderService>();
 
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+ConnectionMultiplexer.Connect(new ConfigurationOptions
+{
+    EndPoints = { "localhost:6379" },
+}));
+builder.Services.AddSingleton<GraphContext>();
+
 var app = builder.Build();
+
+app.MapGet("/operations/ping", async (
+    [FromServices] GraphContext ctx) =>
+{
+    await ctx.PingAsync();
+
+    return Results.Ok();
+});
 
 app.MapPost("/operations/processor", async (
     [FromBody] MessageProcessorOperationRequest request,
