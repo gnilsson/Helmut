@@ -1,23 +1,24 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32516.85
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CBE7FEFF-568F-4711-B296-9B352606957B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helmut.Operations", "src\Helmut.Operations\Helmut.Operations.csproj", "{38CC1ED3-647A-4A43-B9D7-BCE2F340B71C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helmut.Operations", "src\Helmut.Operations\Helmut.Operations.csproj", "{38CC1ED3-647A-4A43-B9D7-BCE2F340B71C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helmut.Radar", "src\Helmut.Radar\Helmut.Radar.csproj", "{4795DDBF-0596-4AAE-B664-1EF55CB143B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helmut.Radar", "src\Helmut.Radar\Helmut.Radar.csproj", "{4795DDBF-0596-4AAE-B664-1EF55CB143B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helmut.General", "src\Helmut.General\Helmut.General.csproj", "{15B7B802-75F7-461A-93A7-DDBB2255235E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helmut.General", "src\Helmut.General\Helmut.General.csproj", "{15B7B802-75F7-461A-93A7-DDBB2255235E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helmut.Controls", "src\Helmut.Controls\Helmut.Controls.csproj", "{51A36067-2D05-4DBC-AB68-0340E3B15FFA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrpcService1", "GrpcService1\GrpcService1.csproj", "{AC0A8B8C-1509-42CD-BDFC-CEDB74E4449D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{38CC1ED3-647A-4A43-B9D7-BCE2F340B71C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -32,10 +33,25 @@ Global
 		{15B7B802-75F7-461A-93A7-DDBB2255235E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15B7B802-75F7-461A-93A7-DDBB2255235E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15B7B802-75F7-461A-93A7-DDBB2255235E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51A36067-2D05-4DBC-AB68-0340E3B15FFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51A36067-2D05-4DBC-AB68-0340E3B15FFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51A36067-2D05-4DBC-AB68-0340E3B15FFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51A36067-2D05-4DBC-AB68-0340E3B15FFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC0A8B8C-1509-42CD-BDFC-CEDB74E4449D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC0A8B8C-1509-42CD-BDFC-CEDB74E4449D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC0A8B8C-1509-42CD-BDFC-CEDB74E4449D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC0A8B8C-1509-42CD-BDFC-CEDB74E4449D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{38CC1ED3-647A-4A43-B9D7-BCE2F340B71C} = {CBE7FEFF-568F-4711-B296-9B352606957B}
 		{4795DDBF-0596-4AAE-B664-1EF55CB143B2} = {CBE7FEFF-568F-4711-B296-9B352606957B}
 		{15B7B802-75F7-461A-93A7-DDBB2255235E} = {CBE7FEFF-568F-4711-B296-9B352606957B}
+		{51A36067-2D05-4DBC-AB68-0340E3B15FFA} = {CBE7FEFF-568F-4711-B296-9B352606957B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9621E059-A741-40DB-9476-7773BDCE6212}
 	EndGlobalSection
 EndGlobal
