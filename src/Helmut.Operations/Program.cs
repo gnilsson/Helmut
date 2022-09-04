@@ -45,7 +45,6 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexe
         EndPoints = { "localhost:6379" },
     }));
 
-
 builder.Services.AddSingleton<IPinger, GraphContext>();
 builder.Services.DecorateProxy<IPinger, AsyncGraphProxy<IPinger>>();
 
