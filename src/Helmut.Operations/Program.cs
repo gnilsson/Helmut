@@ -9,6 +9,7 @@ using System.Text.Json;
 using StackExchange.Redis;
 using Microsoft.Extensions.Configuration;
 using Helmut.Operations.Features.Database;
+using Helmut.Operations.Features.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,33 +39,19 @@ builder.Services.AddSingleton<IMessageProcessorTaskQueue>(new MessageProcessorTa
 builder.Services.AddSingleton<ILocationTranscoderService, LocationTranscoderService>();
 
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-ConnectionMultiplexer.Connect(new ConfigurationOptions
-{
-    EndPoints = { "localhost:6379" },
-}));
-builder.Services.AddSingleton<GraphContext>();
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(
+    new ConfigurationOptions
+    {
+        EndPoints = { "localhost:6379" },
+    }));
+
+
+builder.Services.AddSingleton<IPinger, GraphContext>();
+builder.Services.DecorateProxy<IPinger, AsyncGraphProxy<IPinger>>();
 
 var app = builder.Build();
 
-app.MapGet("/operations/ping", async (
-    [FromServices] GraphContext ctx) =>
-{
-    await ctx.PingAsync();
-
-    return Results.Ok();
-});
-
-app.MapPost("/operations/processor", async (
-    [FromBody] MessageProcessorOperationRequest request,
-    [FromServices] IMessageProcessorOperatorEndpoint endpoint,
-    HttpResponse response,
-    CancellationToken cancellationToken) =>
-{
-    await endpoint.ExecuteAsync(request, cancellationToken);
-
-    return Results.Ok(JsonSerializer.Serialize(request));
-});
+app.MapEndpoints();
 
 if (app.Environment.IsDevelopment())
 {
